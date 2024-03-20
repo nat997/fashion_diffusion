@@ -263,4 +263,4 @@ with block:
     ips_dc = [vton_img_dc, garm_img_dc, category_dc, n_samples_dc, n_steps_dc, image_scale_dc, seed_dc]
     run_button_dc.click(fn=process_dc, inputs=ips_dc, outputs=[result_gallery_dc])
 
-block.launch(server_name='0.0.0.0', server_port=7865)
+block.launch(server_name='0.0.0.0', server_port=7865,share=True)
