@@ -4,7 +4,7 @@ from pathlib import Path
 import sys
 import torch
 from PIL import Image, ImageOps
-
+from transformers import VisionEncoderDecoderModel, ViTImageProcessor, AutoTokenizer
 from utils_ootd import get_mask_location
 
 PROJECT_ROOT = Path(__file__).absolute().parents[1].absolute()
@@ -35,6 +35,53 @@ model_hd = os.path.join(example_path, 'model/model_1.png')
 garment_hd = os.path.join(example_path, 'garment/03244_00.jpg')
 model_dc = os.path.join(example_path, 'model/model_8.png')
 garment_dc = os.path.join(example_path, 'garment/048554_1.jpg')
+
+model = VisionEncoderDecoderModel.from_pretrained("nlpconnect/vit-gpt2-image-captioning")
+feature_extractor = ViTImageProcessor.from_pretrained("nlpconnect/vit-gpt2-image-captioning")
+tokenizer = AutoTokenizer.from_pretrained("nlpconnect/vit-gpt2-image-captioning")
+
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+model.to(device)
+
+
+
+max_length = 16
+num_beams = 4
+gen_kwargs = {"max_length": max_length, "num_beams": num_beams}
+def predict_step(image_paths):
+  images = []
+  for image_path in image_paths:
+    i_image = Image.open(image_path)
+    if i_image.mode != "RGB":
+      i_image = i_image.convert(mode="RGB")
+
+    images.append(i_image)
+
+  pixel_values = feature_extractor(images=images, return_tensors="pt").pixel_values
+  pixel_values = pixel_values.to(device)
+
+  output_ids = model.generate(pixel_values, **gen_kwargs)
+
+  preds = tokenizer.batch_decode(output_ids, skip_special_tokens=True)
+  preds = [pred.strip() for pred in preds]
+  return preds
+
+def process_hd_and_predict(vton_img, garm_img, n_samples, n_steps, image_scale, seed):
+    # Call process_hd function to generate output images
+    output_images = process_hd(vton_img, garm_img, n_samples, n_steps, image_scale, seed)
+    
+    # Get the path of the generated output image
+    output_image_path = os.path.join(os.getcwd(), 'output', 'image_0.png')
+    
+    # Call predict_step function to get predictions for the generated image
+    predictions = predict_step([output_image_path])
+    
+    # Display predictions using Markdown component
+    markdown_predictions = gr.Markdown("\n".join(predictions))
+    
+    # Return the output images
+    return output_images,markdown_predictions
+
 
 def process_hd(vton_img, garm_img, n_samples, n_steps, image_scale, seed):
     model_type = 'hd'
@@ -71,7 +118,28 @@ def process_hd(vton_img, garm_img, n_samples, n_steps, image_scale, seed):
         output_path = os.path.join(output_dir, f'image_{i}.png')
         image.save(output_path)
 
+    image_path = os.path.join(os.getcwd(), 'output', 'image_0.png')
+
+    # Print image path for debugging
+    print("Image path:", image_path)
+
+    # Check if image file exists
+    if os.path.exists(image_path):
+        print("Image file exists.")
+    else:
+        print("Image file does not exist.")
+        return
+
+    # Load the image using PIL
+    try:
+        image = Image.open(image_path)
+        print("Image loaded successfully.")
+    except Exception as e:
+        print("Error loading image:", e)
+        return
+
     return images
+
 
 def process_dc(vton_img, garm_img, category, n_samples, n_steps, image_scale, seed):
     model_type = 'dc'
@@ -164,6 +232,8 @@ with block:
         with gr.Column():
             result_gallery = gr.Gallery(label='Output', show_label=False, elem_id="gallery", preview=True, scale=1)   
     with gr.Column():
+
+        markdown_predictions = gr.Markdown("")
         run_button = gr.Button(value="Run")
         n_samples = gr.Slider(label="Images", minimum=1, maximum=4, value=1, step=1)
         n_steps = gr.Slider(label="Steps", minimum=20, maximum=40, value=20, step=1)
@@ -172,7 +242,8 @@ with block:
         seed = gr.Slider(label="Seed", minimum=-1, maximum=2147483647, step=1, value=-1)
         
     ips = [vton_img, garm_img, n_samples, n_steps, image_scale, seed]
-    run_button.click(fn=process_hd, inputs=ips, outputs=[result_gallery])
+    run_button.click(fn=process_hd_and_predict, inputs=ips, outputs=[result_gallery, markdown_predictions])
+
 
 
     with gr.Row():
