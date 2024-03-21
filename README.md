@@ -26,9 +26,15 @@ Pour utiliser le projet, vous devez d'abord cloner le dépôt GitHub et installe
 
 ```
 git clone https://github.com/nat997/fashion_diffusion.git
-cd fashion_diffusion
+```
+
+```sh
+conda create -n ootd python==3.10
+conda activate ootd
+pip install torch==2.0.1 torchvision==0.15.2 torchaudio==2.0.2
 pip install -r requirements.txt
 ```
+
 Ensuite, vous pouvez utiliser les scripts fournis dans le répertoire "scripts" pour télécharger les données, entraîner les modèles et évaluer leurs performances. Par exemple, pour entraîner le modèle d'apprentissage en profondeur, vous pouvez utiliser le script "train_deep_model.py" :
 
 ```
@@ -40,6 +46,8 @@ Le script entraînera le modèle sur les données spécifiées et enregistrera l
 python scripts/evaluate_deep_model.py --data_dir data/ --model_dir models/
 ```
 Le script calculera les métriques d'évaluation appropriées et les affichera à l'écran.
+
+Télécharger [clip-vit-large-patch14](https://huggingface.co/openai/clip-vit-large-patch14) into ***checkpoints*** folder
 
 Pour lancer le projet :
 ```
