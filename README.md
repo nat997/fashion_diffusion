@@ -56,6 +56,10 @@ python gradio_ootd.py
 ```
 ## Demonstration
 
+![image](https://github.com/nat997/fashion_diffusion/assets/67456959/84c6250f-493e-4f5b-a3df-de54aed12732)
+
+## GIF processing 
+
 ![Screen Recording 2024-03-22 at 12 14 54](https://github.com/nat997/fashion_diffusion/assets/67456959/923f38b7-440c-471f-9993-58292d515db8)
 
 
