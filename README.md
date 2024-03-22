@@ -55,7 +55,9 @@ cd run
 python gradio_ootd.py
 ```
 ## Demonstration
-![alt text](image.png)
+
+![Screen Recording 2024-03-22 at 12 14 54](https://github.com/nat997/fashion_diffusion/assets/67456959/923f38b7-440c-471f-9993-58292d515db8)
+
 
 ## Diagram function of the code
 
