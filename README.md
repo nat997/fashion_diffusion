@@ -54,5 +54,10 @@ Pour lancer le projet :
 cd run
 python gradio_ootd.py
 ```
-
+## Demonstration
 ![alt text](image.png)
+
+## Diagram function of the code
+
+![Untitled Diagram drawio (1)](https://github.com/nat997/fashion_diffusion/assets/67456959/5f3c4798-4801-43d4-a828-889d3788b736)
+
